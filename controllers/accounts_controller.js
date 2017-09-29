@@ -532,7 +532,7 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
    	let AesenteCommissionAccBal = await geteSenteCommissionAccountBal();
    	let ArecieverAccBalance = await getRecieverAccountBalance();
 
-   	let AcheckSenderAccessToken  = await checkSenderAccessToken ;
+   	let AcheckSenderAccessToken  = await checkSenderAccessToken() ;
 
    	if (AcheckSenderAccessToken){
    		if ( (((aTransAmount) + (aTransAmount * 0.025))  < (AsenderAccBalance)) || (((aTransAmount) + (aTransAmount * 0.025))  == (AsenderAccBalance))  ) 

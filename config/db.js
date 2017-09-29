@@ -3,7 +3,7 @@ module.exports = {
   host: 'localhost',
   user: 'root',	
   password: 'matilda',
-  database: 'esente_db'}
+  database: 'eSente_db'}
  // looks like mongodb://<user>:<pass>@mongo.onmodulus.net:27017/Mikha4ot
 
 };
