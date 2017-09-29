@@ -176,7 +176,7 @@ else
 async function checkSenderAccessToken (){
 	return new Promise((resolve,reject) =>{
 
-		qry_action.query('select * from client_logins where cl_ci_id =? and cl_access_token = ?',[sender_Account_id,access_token],function(err,result){
+		qry_action.query('select * from client_logins where cl_ci_id =? and cl_access_token = ?',[sender_Account_id,sender_Access_token],function(err,result){
 
 			if (err){
 
