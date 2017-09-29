@@ -186,7 +186,7 @@ async function checkSenderAccessToken (){
 			{
 				if (result.length === 0){
 
-					resolve(false);
+					reject(false);
 				}
 				else
 				{
