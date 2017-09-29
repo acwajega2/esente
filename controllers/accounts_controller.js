@@ -180,13 +180,14 @@ async function checkSenderAccessToken (){
 
 			if (err){
 
-				return res.end(JSON.stringify({ err: err }));
+				//return res.end(JSON.stringify({ err: err }));
+				reject(JSON.stringify({ err: err }))
 			}
 			else
 			{
 				if (result.length === 0){
 
-					reject(false);
+					resolve(false);
 				}
 				else
 				{
