@@ -7,7 +7,7 @@ var eSente_db = mysql.createConnection(configDB.connection_parameters);// connec
 module.exports.CONNECT_TO_DATABASE = function(req,res){
   eSente_db.connect(function(err){
     if (err){
-       
+       console.log('Unable to connect to the the eSente main Database!!!');
     }
     else
     {

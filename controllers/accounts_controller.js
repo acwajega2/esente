@@ -172,6 +172,40 @@ else
    var sender_api_access_key = queryData.access_api_key;
    //---------------- End of getting the amount to be transacted--------------------
 
+//------------------------Checking the Sender Access Token------
+async function checkSenderAccessToken (){
+	return new Promise((resolve,reject) =>{
+
+		qry_action.query('select * from client_logins where cl_ci_id =? and cl_access_token = ?',[sender_Account_id,access_token],function(err,result){
+
+			if (err){
+
+				return res.end(JSON.stringify({ err: err }));
+			}
+			else
+			{
+				if (result.length === 0){
+
+					resolve(false);
+				}
+				else
+				{
+					
+					resolve(true);
+					
+				}
+
+			}
+
+		});
+
+
+	})
+
+
+}
+//--------------------End Checking the Sender Access Token -----------
+
 
 
 
@@ -291,25 +325,25 @@ async function getRecieverAccountBalance(){
 //---------------Removing the transaction commision Fee from the  sender Account ----
 async function removeTransactionCommision(senderAccBal){
 
- return new Promise((resolve,reject) =>{
+	return new Promise((resolve,reject) =>{
  	//
 
  	qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[senderAccBal - (aTransAmount * 0.025),sender_Account_id ],function(err,result){
 
-   		if (err){
+ 		if (err){
 
-   			reject({err:'sss'});
-   			
+ 			reject({err:'sss'});
 
-   		}
-   		else
-   		{
-    		resolve(result);
-   		
 
-   		}
+ 		}
+ 		else
+ 		{
+ 			resolve(result);
 
-   	});
+
+ 		}
+
+ 	});
  })
 
 }
@@ -321,9 +355,9 @@ async function removeTransactionCommision(senderAccBal){
 async function addCommsiontoEsenteAcc (essenteCommsionAccBal){
 	return new Promise((resolve,reject) =>{
 		
-		   	qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[essenteCommsionAccBal + (aTransAmount * 0.025),esente_commission_Account ],function(err,result){
+		qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[essenteCommsionAccBal + (aTransAmount * 0.025),esente_commission_Account ],function(err,result){
 
-   		if (err){
+			if (err){
    			//return res.end(JSON.stringify({ err: err }));
    			reject('dddd');
 
@@ -349,41 +383,41 @@ async function addCommsiontoEsenteAcc (essenteCommsionAccBal){
 //------------------------------------Inserting the transaction fee charge into the client ledger transaction table ------
 async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommisionAccBal){
 
- return new Promise((resolve,reject) =>{
- 	
- 	qry_action.query('insert into client_ledger_transactions  set ? ',
-   		{CLT_DATE: mdate,CLT_TIME:m_time,
-   			CLT_TRANS_TYPE:'W',CLT_CR_CI : sender_Account_id,
-   			CLT_CR_OPENING_BALANCE:senderAccBal,
-   			CLT_CR_CLOSING_BALANCE: (senderAccBal - (aTransAmount * 0.025)),
-   			CLT_DR_CI: esente_commission_Account,
-   			CLT_DR_OPENING_BALANCE: esenteCommisionAccBal,
-   			CLT_DR_CLOSING_BALANCE: (esenteCommisionAccBal +  (aTransAmount * 0.025)),
-   			CLT_AMOUNT:(aTransAmount * 0.025),
-   			CLT_REMARKS:'Transaction Commision Charge',
-   			CLT_SENDER_ACCESS_TOKEN: sender_Access_token,
-   			CLT_SENDER_API_ACCESS_KEY : sender_api_access_key
-   		},
+	return new Promise((resolve,reject) =>{
+
+		qry_action.query('insert into client_ledger_transactions  set ? ',
+			{CLT_DATE: mdate,CLT_TIME:m_time,
+				CLT_TRANS_TYPE:'W',CLT_CR_CI : sender_Account_id,
+				CLT_CR_OPENING_BALANCE:senderAccBal,
+				CLT_CR_CLOSING_BALANCE: (senderAccBal - (aTransAmount * 0.025)),
+				CLT_DR_CI: esente_commission_Account,
+				CLT_DR_OPENING_BALANCE: esenteCommisionAccBal,
+				CLT_DR_CLOSING_BALANCE: (esenteCommisionAccBal +  (aTransAmount * 0.025)),
+				CLT_AMOUNT:(aTransAmount * 0.025),
+				CLT_REMARKS:'Transaction Commision Charge',
+				CLT_SENDER_ACCESS_TOKEN: sender_Access_token,
+				CLT_SENDER_API_ACCESS_KEY : sender_api_access_key
+			},
 
 
 
-   		function(err,result){
+			function(err,result){
 
-   			if (err){
-   				
-   				reject(JSON.stringify({ err: err }));
+				if (err){
 
-   			}
-   			else
-   			{
+					reject(JSON.stringify({ err: err }));
 
-   			resolve(result);
+				}
+				else
+				{
 
-   		}
+					resolve(result);
 
-   	});
+				}
 
- })
+			});
+
+	})
 
 }
 
@@ -394,10 +428,10 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
 		return new Promise((resolve,reject) =>{
 			
 
-		  qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[senderAccBal - (aTransAmount +(aTransAmount) * 0.025) ,sender_Account_id ],function(err,result){
+			qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[senderAccBal - (aTransAmount +(aTransAmount) * 0.025) ,sender_Account_id ],function(err,result){
 
-   		if (err){
-   			reject(JSON.stringify({ err: err }));
+				if (err){
+					reject(JSON.stringify({ err: err }));
    			//return res.end(JSON.stringify({ err: err }));
 
    		}
@@ -422,10 +456,10 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
 
 		new Promise((resolve,reject) =>{
 			
-			   	qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[recAccBal + aTransAmount,reciever_Account_id ],function(err,result){
+			qry_action.query('update client_info set CI_ESENTE_AMOUNT = ? where ci_id = ? ',[recAccBal + aTransAmount,reciever_Account_id ],function(err,result){
 
-   		if (err){
-   			reject(JSON.stringify({ err: err }))
+				if (err){
+					reject(JSON.stringify({ err: err }))
    			//return res.end();
 
    		}
@@ -447,46 +481,46 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
 
 	//---------------End of Adding the transaction AMount to the  reciever Account ----
 	//------------------------------------Inserting the transaction Amounut into the client ledger transaction table ------
-      async function addTransAmountintoLedger(senderAccBalP,recAccBalP){
+	async function addTransAmountintoLedger(senderAccBalP,recAccBalP){
 
-      	new Promise((resolve,reject) =>{
-      		
-      		qry_action.query('insert into client_ledger_transactions  set ? ',
-   		{CLT_DATE: mdate,CLT_TIME:m_time,
-   			CLT_TRANS_TYPE:'W',CLT_CR_CI : sender_Account_id,
-   			CLT_CR_OPENING_BALANCE:senderAccBalP -(aTransAmount * 0.025),
-   			CLT_CR_CLOSING_BALANCE: senderAccBalP - (aTransAmount+aTransAmount * 0.025),
-   			CLT_DR_CI: reciever_Account_id,
-   			CLT_DR_OPENING_BALANCE: recAccBalP,
-   			CLT_DR_CLOSING_BALANCE: recAccBalP+  aTransAmount ,
-   			CLT_AMOUNT:aTransAmount ,
-   			CLT_REMARKS:'Money Send from one Account to another',
-   			CLT_SENDER_ACCESS_TOKEN: sender_Access_token,
-   			CLT_SENDER_API_ACCESS_KEY : sender_api_access_key
-   		},
+		new Promise((resolve,reject) =>{
+
+			qry_action.query('insert into client_ledger_transactions  set ? ',
+				{CLT_DATE: mdate,CLT_TIME:m_time,
+					CLT_TRANS_TYPE:'W',CLT_CR_CI : sender_Account_id,
+					CLT_CR_OPENING_BALANCE:senderAccBalP -(aTransAmount * 0.025),
+					CLT_CR_CLOSING_BALANCE: senderAccBalP - (aTransAmount+aTransAmount * 0.025),
+					CLT_DR_CI: reciever_Account_id,
+					CLT_DR_OPENING_BALANCE: recAccBalP,
+					CLT_DR_CLOSING_BALANCE: recAccBalP+  aTransAmount ,
+					CLT_AMOUNT:aTransAmount ,
+					CLT_REMARKS:'Money Send from one Account to another',
+					CLT_SENDER_ACCESS_TOKEN: sender_Access_token,
+					CLT_SENDER_API_ACCESS_KEY : sender_api_access_key
+				},
 
 
 
-   		function(err,result){
+				function(err,result){
 
-   			if (err){
+					if (err){
 
-   				reject(JSON.stringify({ err: err }))
+						reject(JSON.stringify({ err: err }))
    				//return res.end(JSON.stringify({ err: err }));
 
    			}
    			else
    			{
 
-   			resolve(result);
+   				resolve(result);
 
-   		}
+   			}
 
-   	});
+   		});
 
 
-      	})
-      }
+		})
+	}
 	//------------------------------------END of Inserting the transaction Amounut into the client ledger transaction table ------
 
 
@@ -498,14 +532,11 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
    	let AesenteCommissionAccBal = await geteSenteCommissionAccountBal();
    	let ArecieverAccBalance = await getRecieverAccountBalance();
 
-   
+   	let AcheckSenderAccessToken  = await checkSenderAccessToken ;
 
-   
-
-   
-
-   	if ( (((aTransAmount) + (aTransAmount * 0.025))  < (AsenderAccBalance)) || (((aTransAmount) + (aTransAmount * 0.025))  == (AsenderAccBalance))  ) 
-   	{
+   	if (AcheckSenderAccessToken){
+   		if ( (((aTransAmount) + (aTransAmount * 0.025))  < (AsenderAccBalance)) || (((aTransAmount) + (aTransAmount * 0.025))  == (AsenderAccBalance))  ) 
+   		{
     	canProceed = true; //---------------the sender has enough money to make the transaction
 
     }
@@ -515,26 +546,42 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
     	canProceed = false;  //-------------------the sender doesnot have enough money to complete thr transaction
     }
 
+}
+else
+{
+	res.end(JSON.stringify({ err: 'Prohibited transaction!!!' }));
 
-    if (canProceed){
 
-  
+}
 
-    let AremCommisionAmountFromSenderAcc = await removeTransactionCommision(AsenderAccBalance);
-    let addCommsiontoeenteAccD = await addCommsiontoEsenteAcc(AesenteCommissionAccBal);
-    let AinsertTransactionFeeChargetoClientLedger = await insertTransactionFeeChargetoClientLedger(AsenderAccBalance,AesenteCommissionAccBal)
-    let AremTransAmountFromSenderAcc = await remTransAmountFromSenderAcc(AsenderAccBalance);
-    let AaddTransAmountToRecieverAcc = await addTransAmountToRecieverAcc(ArecieverAccBalance);
-    let AaddTransAmountintoLedger = await addTransAmountintoLedger(AsenderAccBalance,ArecieverAccBalance);
 
-    res.end(JSON.stringify({ pass: 'Transaction successful!!!!'}));
 
-    }
-    else
-    {
-    	res.end(JSON.stringify({ err: 'AAASorry your eSente Account Balance not enough to complete this transaction!' }));
 
-    }
+
+
+
+
+
+
+if (canProceed){
+
+
+
+	let AremCommisionAmountFromSenderAcc = await removeTransactionCommision(AsenderAccBalance);
+	let addCommsiontoeenteAccD = await addCommsiontoEsenteAcc(AesenteCommissionAccBal);
+	let AinsertTransactionFeeChargetoClientLedger = await insertTransactionFeeChargetoClientLedger(AsenderAccBalance,AesenteCommissionAccBal)
+	let AremTransAmountFromSenderAcc = await remTransAmountFromSenderAcc(AsenderAccBalance);
+	let AaddTransAmountToRecieverAcc = await addTransAmountToRecieverAcc(ArecieverAccBalance);
+	let AaddTransAmountintoLedger = await addTransAmountintoLedger(AsenderAccBalance,ArecieverAccBalance);
+
+	res.end(JSON.stringify({ pass: 'Transaction successful!!!!'}));
+
+}
+else
+{
+	res.end(JSON.stringify({ err: 'AAASorry your eSente Account Balance not enough to complete this transaction!' }));
+
+}
 
 
 
@@ -548,7 +595,7 @@ async function insertTransactionFeeChargetoClientLedger(senderAccBal,esenteCommi
    //------------------------- End of Checking if the amount to be transacted is accepted --------
 
 
-  TransferMoney();
+   TransferMoney();
 
 
 
