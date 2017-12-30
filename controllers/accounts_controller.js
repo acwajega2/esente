@@ -5,7 +5,9 @@ var url = require('url');
 
 //----------------------Creating a New eSenteAccount--------------------------
 module.exports.createNewEsenteAccount = function (req,res,queryData) {
+	console.log(queryData);
 	var jsonObject=JSON.parse(queryData.data);
+ console.log("------"+jsonObject.firstname+"------");
 
 	var ip = req.headers['x-forwarded-for'] || 
 	req.connection.remoteAddress || 
@@ -18,38 +20,55 @@ module.exports.createNewEsenteAccount = function (req,res,queryData) {
 	var time = new Date();
 	var m_time = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
 
-	console.log('Got a Reques from request from '+ip);
+	//console.log('Got a Reques from request from '+ip);
 
 
-	qry_action.query('insert into client_info set ?', 
-		{CI_SURNAME:jsonObject.surname,
+	//-----------------Checking if the account has already been created
+	qry_action.query('select * from client_info  where CI_USERNAME = ? ',jsonObject.mobtel,function(err,result){
+		//-----------If the account is new
+		if (result.length ===0){
+
+				qry_action.query('insert into client_info set ?', 
+		{CI_SURNAME:jsonObject.firstname,
 			CI_LASTNAME:jsonObject.lastname,
-			CI_MOB_TEL:jsonObject.mobTel,
-			CI_NI_NUMBER: jsonObject.niNumber,
-			CI_COUNTRY: jsonObject.country,
-			CI_HOME_ADDRESS : jsonObject.homeAddress,
-			CI_USERNAME: jsonObject.username,
+			CI_MOB_TEL:jsonObject.mobtel,		
+			CI_USERNAME: jsonObject.mobtel,
 			CI_PASSWORD: jsonObject.password,
 			CI_REG_DATE: mdate,
 			CI_REG_TIME: m_time,
 			CI_REG_IP: ip
-
 		}, 
 		function(err, result) {
 			if (err) 
 			{
-				return res.end(JSON.stringify({ err: err }));
-//res.status(500).json({ err: err });
+         
+				res.end(JSON.stringify({resp: "err",status:"Unable to create account"}));
+				
 }
 else
 {
-	return res.end(JSON.stringify({  status: 'eSente Account Registration successful!'   }));
-//res.status(200).json({  status: 'eSente Account Registration successful!'   });
+	
+	res.end(JSON.stringify({resp: "pass",status:"eSente Account Registration successful!"}));
+
+
+
 
 }
 
 console.log(result.insertId);
 });
+
+		}
+
+		//-------------If the account has already been created using that number
+		else
+		{
+
+			res.end(JSON.stringify({resp: "err",status:"The provided Mobile Tel is currently being used by another account!!"}));
+		}
+
+	});
+
 
 
 }	 
@@ -85,7 +104,7 @@ else
 
 
 //-----------------------------------Sending Money to another Account--------------------------
-module.exports.sendMoney = function (req,res,queryData) {
+ module.exports.sendMoney = function (req,res,queryData) {
 
 	var hat = require('hat');
 	var trans_key = hat();

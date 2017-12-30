@@ -17,16 +17,19 @@
   //--------------------------------------------------------------------------------------------------------
 
 
+
+
   var server = http.createServer(function(req,res){
   //----------------Registering new Server Request---------------------
   action_controller.registerServerRequest(req,res);
   //----------------End of registering new Server Request--------------
 
 
+
+
+
   //----------------Specifying the type of response -------
-
   res.writeHead(200, {'Content-Type': 'application/json'});
-
   //------------------------------Parsing the recieved URL----------
   var querryData = url.parse(req.url, true).query;
   //----------------End of Specifying the type of response -------
